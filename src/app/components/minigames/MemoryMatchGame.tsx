@@ -29,6 +29,15 @@ type Difficulty = "Easy" | "Medium" | "Hard" | "Expert" | "Impossible";
 
 const ROUND_SECONDS = 90;
 
+const shuffleCards = (items: MemoryMatchCard[]): MemoryMatchCard[] => {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
+
 const getDifficulty = (completedBoards: number): Difficulty => {
   if (completedBoards <= 0) return "Easy";
   if (completedBoards === 1) return "Medium";
@@ -82,7 +91,9 @@ export const MemoryMatchGame: React.FC<Props> = ({
   });
 
   const [cards, setCards] = useState<MemoryMatchCard[]>(() => {
-    const initialCards = generateMemoryPairs(grade, new Set<string>(), subject);
+    const initialCards = shuffleCards(
+      generateMemoryPairs(grade, new Set<string>(), subject),
+    );
     return initialCards;
   });
   useEffect(() => {
@@ -117,8 +128,19 @@ export const MemoryMatchGame: React.FC<Props> = ({
       // Reset all flip animated values back to 0
       tileFlips.forEach((val) => val.setValue(0));
 
-      let nextCards = generateMemoryPairs(grade, seenBoards.current, subject);
+      let nextCards = shuffleCards(
+        generateMemoryPairs(grade, seenBoards.current, subject),
+      );
       let key = boardKey(nextCards);
+
+      let attempts = 0;
+      while (key && seenBoards.current.has(key) && attempts < 10) {
+        nextCards = shuffleCards(
+          generateMemoryPairs(grade, seenBoards.current, subject),
+        );
+        key = boardKey(nextCards);
+        attempts++;
+      }
 
       if (
         !nextCards ||
@@ -126,7 +148,9 @@ export const MemoryMatchGame: React.FC<Props> = ({
         (key && seenBoards.current.has(key))
       ) {
         seenBoards.current.clear();
-        nextCards = generateMemoryPairs(grade, seenBoards.current, subject);
+        nextCards = shuffleCards(
+          generateMemoryPairs(grade, seenBoards.current, subject),
+        );
         key = boardKey(nextCards);
       }
 
