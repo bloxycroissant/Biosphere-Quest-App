@@ -1523,7 +1523,7 @@ function RankRow({
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#091426" },
+  safeArea: { flex: 1, backgroundColor: "transparent" },
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",

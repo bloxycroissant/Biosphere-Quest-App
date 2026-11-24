@@ -2,13 +2,13 @@ import { useAudioPlayer } from "expo-audio";
 import { Image } from "expo-image";
 import { useEffect, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  Animated,
+  Dimensions,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -32,14 +32,14 @@ const TUTORIAL_DATA: Record<string, TutorialStep[]> = {
       title: "Welcome to Biosphere Quest! 🚀",
       description:
         "This is your main command center where you can track your daily streaks, level progression, and XP.",
-      mascot: require("../../../assets/BiosphereQuestAssets/Astro (Biosphere Quest Mascot).png"),
+      mascot: require("../../assets/BiosphereQuestAssets/Astro (Biosphere Quest Mascot).png"),
       tip: "Check your daily study goals and upcoming calendar events right here.",
     },
     {
       title: "Study Schedule & Calendar 📅",
       description:
         "Plan your learning sessions, set custom reminders, and keep your daily streak alive effortlessly.",
-      mascot: require("../../../assets/BiosphereQuestAssets/Stella (Biosphere Quest Mascot).png"),
+      mascot: require("../../assets/BiosphereQuestAssets/Stella (Biosphere Quest Mascot).png"),
       tip: "Tap '+ Schedule' on the calendar widget to add your personal study blocks.",
     },
   ],
@@ -48,14 +48,14 @@ const TUTORIAL_DATA: Record<string, TutorialStep[]> = {
       title: "Explore Curriculum & Missions 🔬",
       description:
         "Dive into MATATAG-aligned Grade 1–6 Math and Science lessons designed for interactive learning.",
-      mascot: require("../../../assets/BiosphereQuestAssets/Astro (Biosphere Quest Mascot).png"),
+      mascot: require("../../assets/BiosphereQuestAssets/Astro (Biosphere Quest Mascot).png"),
       tip: "Tap on any subject domain to view interactive missions and comprehensive notes.",
     },
     {
       title: "Earn XP & Complete Lessons ⭐",
       description:
         "Each completed mission rewards you with XP and unlocks the next exciting challenge in your learning path.",
-      mascot: require("../../../assets/BiosphereQuestAssets/Stella (Biosphere Quest Mascot).png"),
+      mascot: require("../../assets/BiosphereQuestAssets/Stella (Biosphere Quest Mascot).png"),
       tip: "Stuck on a concept? Tap 'Comprehensive Notes' for a full reference guide.",
     },
   ],
@@ -64,14 +64,14 @@ const TUTORIAL_DATA: Record<string, TutorialStep[]> = {
       title: "Mini-Game Arcade 🎮",
       description:
         "Practice your knowledge with fast-paced educational mini-games like Flashcards, Word Scramble, and Number Ninja!",
-      mascot: require("../../../assets/BiosphereQuestAssets/Astro (Biosphere Quest Mascot).png"),
+      mascot: require("../../assets/BiosphereQuestAssets/Astro (Biosphere Quest Mascot).png"),
       tip: "Earn massive XP bonuses to climb the Weekly Champions Leaderboard.",
     },
     {
       title: "Defuse the Codebreaker Vault 🔥",
       description:
         "Test your expert problem-solving skills against challenging combinations for maximum rewards.",
-      mascot: require("../../../assets/BiosphereQuestAssets/Stella (Biosphere Quest Mascot).png"),
+      mascot: require("../../assets/BiosphereQuestAssets/Stella (Biosphere Quest Mascot).png"),
       tip: "Use the filter buttons at the top to sort games by difficulty.",
     },
   ],
@@ -80,14 +80,14 @@ const TUTORIAL_DATA: Record<string, TutorialStep[]> = {
       title: "Your Explorer ID & Stats 🏅",
       description:
         "Customize your avatar, check your total earned XP, and view all unlocked badges and achievements.",
-      mascot: require("../../../assets/BiosphereQuestAssets/Astro (Biosphere Quest Mascot).png"),
+      mascot: require("../../assets/BiosphereQuestAssets/Astro (Biosphere Quest Mascot).png"),
       tip: "Tap 'Edit Profile' to update your explorer details anytime.",
     },
     {
       title: "Track Your Study Schedule 📅",
       description:
         "Review all your active study sessions and completed milestones in one convenient place.",
-      mascot: require("../../../assets/BiosphereQuestAssets/Stella (Biosphere Quest Mascot).png"),
+      mascot: require("../../assets/BiosphereQuestAssets/Stella (Biosphere Quest Mascot).png"),
       tip: "Mark study sessions as complete to instantly claim bonus XP!",
     },
   ],
@@ -104,10 +104,10 @@ export default function AppTutorialModal({
 
   // Sound effects setup using expo-audio
   const openSound = useAudioPlayer(
-    require("../../../assets/BiosphereQuestSoundEffectsandMusic/Marimba Upbeat Kids Fun (No Copyright Music) by MokkaMusic Junior.mp3"),
+    require("../../assets/BiosphereQuestSoundEffectsandMusic/Marimba Upbeat Kids Fun (No Copyright Music) by MokkaMusic Junior.mp3"),
   );
   const closeSound = useAudioPlayer(
-    require("../../../assets/BiosphereQuestSoundEffectsandMusic/The Game Show Theme Music - (192 Kbps).mp3"),
+    require("../../assets/BiosphereQuestSoundEffectsandMusic/The Game Show Theme Music - (192 Kbps).mp3"),
   );
 
   const [scaleAnim] = useState(new Animated.Value(0.8));
