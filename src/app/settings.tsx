@@ -219,21 +219,22 @@ export default function SettingsScreen(): React.JSX.Element {
   const handleLogout = async (): Promise<void> => {
     try {
       await supabase.auth.signOut();
-      const userKeys = [
-        STORAGE_KEY,
-        "@biosphere_completed_lessons_v1",
-        "@biosphere_study_sessions_v1",
-        "@biosphere_recent_lessons",
-        "@biosphere_recent_games_v1",
-        "explorerName",
-        "explorerUsername",
-      ];
-      await AsyncStorage.multiRemove(userKeys);
+
+      const savedData = await AsyncStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        delete parsed.email;
+        delete parsed.authProvider;
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      }
 
       setHasAccount(false);
       setUserEmail("");
       setIsGoogleAuth(false);
-      Alert.alert("Logged Out", "You have been logged out of your account.");
+      Alert.alert(
+        "Logged Out",
+        "You have been logged out. Your profile has been saved.",
+      );
       router.replace("/home" as any);
     } catch (error) {
       console.error("Logout error:", error);
@@ -814,7 +815,7 @@ export default function SettingsScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#091426" },
+  safeArea: { flex: 1, backgroundColor: "transparent" },
   content: { padding: 20 },
   headerRow: {
     flexDirection: "row",
