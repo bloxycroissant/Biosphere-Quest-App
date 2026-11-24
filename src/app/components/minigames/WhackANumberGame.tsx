@@ -188,8 +188,13 @@ const generateCurricularWhackChallenge = (
 ): WhackChallenge => {
   const gradePools =
     MATATAG_CURRICULUM_BANK[grade] || MATATAG_CURRICULUM_BANK[1];
+  const unseenRules = gradePools.filter(
+    (pool) =>
+      !Array.from(seenSet).some((key) => key.startsWith(`${pool.ruleText}|`)),
+  );
+  const candidatePool = unseenRules.length > 0 ? unseenRules : gradePools;
   const candidateRule =
-    gradePools[Math.floor(Math.random() * gradePools.length)];
+    candidatePool[Math.floor(Math.random() * candidatePool.length)];
 
   // Shuffle and pick exactly 4 correct (right answers)
   const shuffledCorrect = [...candidateRule.correctPool].sort(
@@ -285,7 +290,7 @@ export const WhackANumberGame: React.FC<Props> = ({
     (resetEntireGame = false) => {
       playSound("click");
       antiCheatClickLimit.current = { count: 0, time: Date.now() };
-      if (seenChallenges.current.size > 80) {
+      if (resetEntireGame || seenChallenges.current.size > 80) {
         seenChallenges.current.clear();
       }
       let nextChallenge = generateCurricularWhackChallenge(
@@ -679,6 +684,8 @@ const styles = StyleSheet.create({
 });
 
 const challengeKey = (challenge: WhackChallenge): string =>
-  `${challenge.targetMultiple}|${[...challenge.gridNumbers]
+  `${challenge.ruleText}|${challenge.targetMultiple}|${[
+    ...challenge.gridNumbers,
+  ]
     .sort((a, b) => a - b)
     .join(",")}`;
