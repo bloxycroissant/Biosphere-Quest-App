@@ -1,5 +1,5 @@
+import { GradientSafeAreaView } from "@/components/gradient-safe-area";
 import { useAudioPlayer } from "expo-audio";
-import { LinearGradient } from "expo-linear-gradient";
 import React, { useRef, useState } from "react";
 import {
   StyleSheet,
@@ -169,7 +169,7 @@ export const CodebreakerGame: React.FC<Props> = ({
 
   if (!subject || !challenge) {
     return (
-      <LinearGradient colors={["#0a0b18", "#2b2b5c"]} style={styles.background}>
+      <GradientSafeAreaView edges={[]} style={styles.background}>
         <MinigameMotion
           key={`${subject}-${questionNumber}`}
           style={styles.container}
@@ -221,12 +221,12 @@ export const CodebreakerGame: React.FC<Props> = ({
             </TouchableOpacity>
           </View>
         </MinigameMotion>
-      </LinearGradient>
+      </GradientSafeAreaView>
     );
   }
 
   return (
-    <LinearGradient colors={["#0a0b18", "#2b2b5c"]} style={styles.background}>
+    <GradientSafeAreaView edges={[]} style={styles.background}>
       <MinigameMotion
         key={`${subject}-${questionNumber}`}
         style={styles.container}
@@ -313,7 +313,7 @@ export const CodebreakerGame: React.FC<Props> = ({
           )}
         </View>
       </MinigameMotion>
-    </LinearGradient>
+    </GradientSafeAreaView>
   );
 };
 
