@@ -21,8 +21,8 @@ interface Props {
 
 type Difficulty = "Easy" | "Medium" | "Hard" | "Expert" | "Impossible";
 
-const ROUND_TIME_SECONDS = 30; // 30-second countdown timer per round
-const TARGET_QUOTA = 5; // 5 total questions per round target
+const ROUND_TIME_SECONDS = 60; // Countdown timer per endless run
+const DIFFICULTY_STEP = 5; // Difficulty increases every 5 correct answers
 
 const getDifficulty = (completedQuotas: number): Difficulty => {
   if (completedQuotas <= 0) return "Easy";
@@ -53,7 +53,7 @@ const generateInfiniteCurricularQuestion = (
   let optionsList: string[] = [];
 
   let attempts = 0;
-  while (attempts < 20) {
+  while (attempts < 40) {
     if (grade === 1) {
       const a = Math.floor(Math.random() * 20) + 1;
       const b = Math.floor(Math.random() * 10) + 1;
@@ -179,6 +179,10 @@ const generateInfiniteCurricularQuestion = (
     attempts++;
   }
 
+  if (attempts >= 40) {
+    seenSet.current = [questionText];
+  }
+
   const wrongOptionsSet = new Set<string>();
   const correctNum = parseFloat(correctAnswer.replace(/[^0-9.-]+/g, "")) || 10;
   while (wrongOptionsSet.size < 3) {
@@ -281,6 +285,7 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
 
   const [whacked, setWhacked] = useState<number[]>([]);
   const [score, setScore] = useState(0);
+  const [questionCount, setQuestionCount] = useState(1);
   const [timeLeft, setTimeLeft] = useState(ROUND_TIME_SECONDS);
   const [feedback, setFeedback] = useState("");
   const [completedQuotas, setCompletedQuotas] = useState(0);
@@ -291,7 +296,7 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
 
   const currentDifficulty = getDifficulty(completedQuotas);
   const earnedXP = getXPForScore(score);
-  const isGameOver = timeLeft <= 0 || score >= TARGET_QUOTA;
+  const isGameOver = timeLeft <= 0;
 
   // Timer countdown effect
   useEffect(() => {
@@ -315,7 +320,11 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
       playSound("click");
       antiCheatClickLimit.current = { count: 0, time: Date.now() };
 
-      let nextChallenge = generateCurricularWhackChallenge(
+      if (resetEntireGame) {
+        seenChallenges.current = [];
+      }
+
+      const nextChallenge = generateCurricularWhackChallenge(
         grade,
         seenChallenges,
       );
@@ -329,7 +338,9 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
         setTimeLeft(ROUND_TIME_SECONDS);
         setCompletedQuotas(0);
         setScore(0);
-        seenChallenges.current = [];
+        setQuestionCount(1);
+      } else {
+        setQuestionCount((prev) => prev + 1);
       }
     },
     [grade, tileScales],
@@ -354,8 +365,7 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
   };
 
   const whack = (index: number) => {
-    if (whacked.includes(index) || isGameOver || !challenge.questionData)
-      return;
+    if (whacked.length > 0 || isGameOver || !challenge.questionData) return;
 
     const now = Date.now();
     if (now - antiCheatClickLimit.current.time < 1000) {
@@ -379,35 +389,33 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
       setScore(nextScore);
       const calculatedXp = getXPForScore(nextScore);
       setFeedback(`✨ CORRECT! +30 XP (Total: +${calculatedXp}XP)`);
-      setWhacked((current) => [...current, index]);
+      setWhacked([index]);
+      onSuccess(30);
 
-      if (nextScore >= TARGET_QUOTA) {
-        onSuccess(calculatedXp);
+      if (nextScore % DIFFICULTY_STEP === 0) {
         setCompletedQuotas((count) => count + 1);
-      } else {
-        setTimeout(() => {
-          startNextBoard(false);
-        }, 1200);
       }
-    } else {
-      playSound("wrong");
-      // Score and XP remain unchanged on incorrect answer (+0 XP added)
-      const currentXp = getXPForScore(score);
-      setFeedback(
-        `❌ INCORRECT! Correct answer: ${challenge.questionData.correctAnswer} (+0 XP)`,
-      );
-      setWhacked((current) => [...current, index]);
 
       setTimeout(() => {
         startNextBoard(false);
-      }, 1600);
+      }, 900);
+    } else {
+      playSound("wrong");
+      setFeedback(
+        `❌ INCORRECT! Correct answer: ${challenge.questionData.correctAnswer} (+0 XP)`,
+      );
+      setWhacked([index]);
+
+      setTimeout(() => {
+        startNextBoard(false);
+      }, 1300);
     }
   };
 
   return (
     <GradientSafeAreaView edges={[]} style={styles.background}>
       <MinigameMotion
-        key={`${challenge.ruleText}-${completedQuotas}`}
+        key={`${challenge.ruleText}-${questionCount}`}
         style={styles.container}
       >
         <View style={styles.topBar}>
@@ -429,7 +437,7 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
 
         <View style={styles.content}>
           <Text style={styles.eyebrow}>
-            SCORE: {score}/5 ({earnedXP > 0 ? `+${earnedXP}XP` : "+00XP"}) • +30
+            SCORE: {score} ({earnedXP > 0 ? `+${earnedXP}XP` : "+00XP"}) • +30
             XP PER CORRECT ANSWER
           </Text>
 
@@ -438,7 +446,8 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
           <Text style={styles.rule}>{challenge.ruleText}</Text>
 
           <Text style={styles.score}>
-            Progress: {score} / {TARGET_QUOTA} • Reward: +{earnedXP} XP
+            Question #{questionCount} • Correct: {score} • Reward: +{earnedXP}{" "}
+            XP
           </Text>
 
           <View style={styles.grid}>
@@ -462,7 +471,7 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
                       selected && (isTarget ? styles.hitHole : styles.missHole),
                     ]}
                     onPress={() => whack(index)}
-                    disabled={selected || isGameOver}
+                    disabled={whacked.length > 0 || isGameOver}
                     activeOpacity={0.75}
                   >
                     <Text
@@ -488,12 +497,10 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
 
           {isGameOver && (
             <View style={styles.expiredCard}>
-              <Text style={styles.expiredTitle}>
-                {score >= TARGET_QUOTA ? "Round Complete! 🎉" : "Time's Up! ⏱️"}
-              </Text>
+              <Text style={styles.expiredTitle}>Time&apos;s Up! ⏱️</Text>
 
               <Text style={styles.expiredCopy}>
-                You got {score}/5 correct! Your reward output is +
+                You got {score} correct! Your reward output is +
                 {earnedXP < 10 ? `0${earnedXP}` : earnedXP}XP.
               </Text>
 
