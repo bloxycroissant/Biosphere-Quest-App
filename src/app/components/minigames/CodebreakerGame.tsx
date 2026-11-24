@@ -137,16 +137,23 @@ export const CodebreakerGame: React.FC<Props> = ({
     antiCheatTimestamp.current = Date.now();
     const nextQuestionNum = questionNumber + 1;
 
-    if (seenChallenges.current.size > 150) {
-      seenChallenges.current.clear();
-    }
-
     let nextChallenge = generateCodebreaker(
       grade,
       subject ?? "Math",
       seenChallenges.current,
     );
     let key = nextChallenge ? challengeKey(nextChallenge) : "";
+    let attempts = 0;
+
+    while (key && seenChallenges.current.has(key) && attempts < 15) {
+      nextChallenge = generateCodebreaker(
+        grade,
+        subject ?? "Math",
+        seenChallenges.current,
+      );
+      key = nextChallenge ? challengeKey(nextChallenge) : "";
+      attempts++;
+    }
 
     if (!nextChallenge || seenChallenges.current.has(key)) {
       seenChallenges.current.clear();
