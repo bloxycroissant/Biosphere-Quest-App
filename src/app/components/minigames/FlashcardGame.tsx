@@ -27,6 +27,15 @@ type Difficulty = "Easy" | "Medium" | "Hard" | "Expert" | "Impossible";
 
 const CARDS_PER_CYCLE = 6;
 
+const shuffleDeck = (items: Flashcard[]): Flashcard[] => {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
+
 const getDifficulty = (completedCycles: number): Difficulty => {
   if (completedCycles <= 0) return "Easy";
   if (completedCycles === 1) return "Medium";
@@ -77,7 +86,7 @@ export const FlashcardGame: React.FC<Props> = ({
 
   const [completedCycles, setCompletedCycles] = useState(0);
   const [deck, setDeck] = useState<Flashcard[]>(() => {
-    return generateFlashcardDeck(grade);
+    return shuffleDeck(generateFlashcardDeck(grade));
   });
   useEffect(() => {
     deck.forEach((item) => seenCards.current.add(item.front));
@@ -133,14 +142,21 @@ export const FlashcardGame: React.FC<Props> = ({
 
           // The seen-card set is a mutable game-session cache.
           // eslint-disable-next-line react-hooks/refs
-          let nextDeck = generateFlashcardDeck(grade, seenCards.current);
-          if (!nextDeck || nextDeck.length === 0) {
+          let rawNextDeck = generateFlashcardDeck(
+            grade,
+            seenCards.current,
+          ).filter(
+            // eslint-disable-next-line react-hooks/refs
+            (item) => !seenCards.current.has(item.front),
+          );
+          if (!rawNextDeck || rawNextDeck.length === 0) {
             // eslint-disable-next-line react-hooks/refs
             seenCards.current.clear();
             // eslint-disable-next-line react-hooks/refs
-            nextDeck = generateFlashcardDeck(grade, seenCards.current);
+            rawNextDeck = generateFlashcardDeck(grade, seenCards.current);
           }
 
+          const nextDeck = shuffleDeck(rawNextDeck);
           // eslint-disable-next-line react-hooks/refs
           nextDeck.forEach((item) => seenCards.current.add(item.front));
           setDeck(nextDeck);
