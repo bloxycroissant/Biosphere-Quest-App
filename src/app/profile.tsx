@@ -522,7 +522,6 @@ export default function ProfileScreen(): React.JSX.Element {
         setIsLoggedIn(false);
         setEmail("");
         setTempEmail("");
-        setProfileImage(null);
       }
     } catch (e) {
       console.error("Auth check error in profile", e);
@@ -548,7 +547,6 @@ export default function ProfileScreen(): React.JSX.Element {
         setIsLoggedIn(false);
         setEmail("");
         setTempEmail("");
-        setProfileImage(null);
       }
     });
 
@@ -824,6 +822,26 @@ export default function ProfileScreen(): React.JSX.Element {
               full_name: updatedName,
               username: updatedUsername,
             },
+          });
+
+          await supabase.from("profiles").upsert({
+            id: user.id,
+            full_name: updatedUsername || updatedName,
+            username: updatedUsername,
+            grade_year: tempGradeYear || gradeYear || "Grade 1",
+            total_xp: xp,
+            streak: streak,
+            lessons_count: lessons,
+            profile_data: {
+              bio: tempBio,
+              school: tempSchool,
+              phone: tempPhone,
+              website: tempWebsite,
+              sessions: sessions,
+              profileImage: tempProfileImage,
+            },
+            is_bot: false,
+            updated_at: new Date().toISOString(),
           });
         }
         await syncFullProfileToCloud();
@@ -1565,6 +1583,16 @@ export default function ProfileScreen(): React.JSX.Element {
                     setIsLoggedIn(false);
                     try {
                       await supabase.auth.signOut();
+                      const savedData = await AsyncStorage.getItem(STORAGE_KEY);
+                      if (savedData) {
+                        const parsed = JSON.parse(savedData);
+                        delete parsed.email;
+                        delete parsed.authProvider;
+                        await AsyncStorage.setItem(
+                          STORAGE_KEY,
+                          JSON.stringify(parsed),
+                        );
+                      }
                     } catch (e) {
                       console.error("Signout error:", e);
                     }
@@ -2247,7 +2275,7 @@ function Stat({
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#091426" },
+  safeArea: { flex: 1, backgroundColor: "transparent" },
   stellaMascot: {
     width: 60,
     height: 60,
