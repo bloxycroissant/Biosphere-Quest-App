@@ -290,9 +290,11 @@ const getUniqueWordScramble = (
   grade: GradeLevel,
   seenSet: Set<string>,
 ): ScrambleChallenge => {
-  const candidate = generateWordScramble(grade, seenSet);
-  if (candidate && !seenSet.has(candidate.targetWord)) {
-    return candidate;
+  for (let i = 0; i < 10; i++) {
+    const candidate = generateWordScramble(grade, seenSet);
+    if (candidate && !seenSet.has(candidate.targetWord)) {
+      return candidate;
+    }
   }
 
   const filtered = WORD_BANK.filter(
@@ -309,7 +311,9 @@ const getUniqueWordScramble = (
   }
 
   seenSet.clear();
-  const fallback = WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)];
+  const gradePool = WORD_BANK.filter((item) => item.minGrade <= grade);
+  const pool = gradePool.length > 0 ? gradePool : WORD_BANK;
+  const fallback = pool[Math.floor(Math.random() * pool.length)];
   return {
     targetWord: fallback.word,
     clue: fallback.clue,
@@ -382,9 +386,6 @@ export const WordScrambleGame: React.FC<Props> = ({
 
   const loadNextWord = useCallback(() => {
     antiCheatTimestamp.current = Date.now();
-    if (seenChallenges.current.size > 80) {
-      seenChallenges.current.clear();
-    }
     const nextChallenge = getUniqueWordScramble(grade, seenChallenges.current);
     seenChallenges.current.add(nextChallenge.targetWord);
 
