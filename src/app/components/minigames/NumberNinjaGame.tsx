@@ -142,11 +142,17 @@ export const NumberNinjaGame: React.FC<Props> = ({
     if (roundExpired) return;
     antiCheatTimestamp.current = Date.now();
 
-    if (seenQuestions.current.size > 150) {
-      seenQuestions.current.clear();
-    }
-
     let nextQuestion = generateNinjaProblem(grade, seenQuestions.current);
+    let attempts = 0;
+
+    while (
+      nextQuestion?.prompt &&
+      seenQuestions.current.has(nextQuestion.prompt) &&
+      attempts < 15
+    ) {
+      nextQuestion = generateNinjaProblem(grade, seenQuestions.current);
+      attempts++;
+    }
 
     if (
       !nextQuestion ||
