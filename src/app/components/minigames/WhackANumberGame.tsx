@@ -1,5 +1,5 @@
+import { GradientSafeAreaView } from "@/components/gradient-safe-area";
 import { useAudioPlayer } from "expo-audio";
-import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -10,10 +10,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import {
-  GradeLevel,
-  WhackChallenge
-} from "../../data/questionGenerators";
+import { GradeLevel, WhackChallenge } from "../../data/questionGenerators";
 import { MinigameMotion } from "./MinigameMotion";
 
 interface Props {
@@ -442,7 +439,7 @@ export const WhackANumberGame: React.FC<Props> = ({
   };
 
   return (
-    <LinearGradient colors={["#0a0b18", "#2b2b5c"]} style={styles.background}>
+    <GradientSafeAreaView edges={[]} style={styles.background}>
       <MinigameMotion
         key={`${challengeKey(challenge)}-${completedQuotas}`}
         style={styles.container}
@@ -549,7 +546,7 @@ export const WhackANumberGame: React.FC<Props> = ({
           )}
         </View>
       </MinigameMotion>
-    </LinearGradient>
+    </GradientSafeAreaView>
   );
 };
 

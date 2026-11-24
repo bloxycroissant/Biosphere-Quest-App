@@ -1,5 +1,5 @@
+import { GradientSafeAreaView } from "@/components/gradient-safe-area";
 import { useAudioPlayer } from "expo-audio";
-import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -82,11 +82,7 @@ export const MemoryMatchGame: React.FC<Props> = ({
   });
 
   const [cards, setCards] = useState<MemoryMatchCard[]>(() => {
-    const initialCards = generateMemoryPairs(
-      grade,
-      new Set<string>(),
-      subject,
-    );
+    const initialCards = generateMemoryPairs(grade, new Set<string>(), subject);
     return initialCards;
   });
   useEffect(() => {
@@ -240,7 +236,7 @@ export const MemoryMatchGame: React.FC<Props> = ({
   };
 
   return (
-    <LinearGradient colors={["#0a0b18", "#2b2b5c"]} style={styles.background}>
+    <GradientSafeAreaView edges={[]} style={styles.background}>
       <MinigameMotion
         key={`${boardKey(cards)}-${completedBoards}`}
         style={styles.container}
@@ -360,7 +356,7 @@ export const MemoryMatchGame: React.FC<Props> = ({
           )}
         </View>
       </MinigameMotion>
-    </LinearGradient>
+    </GradientSafeAreaView>
   );
 };
 

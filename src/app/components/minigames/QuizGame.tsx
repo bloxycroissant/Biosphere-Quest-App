@@ -1,5 +1,5 @@
+import { GradientSafeAreaView } from "@/components/gradient-safe-area";
 import { useAudioPlayer } from "expo-audio";
-import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -405,7 +405,7 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
   };
 
   return (
-    <LinearGradient colors={["#0a0b18", "#2b2b5c"]} style={styles.background}>
+    <GradientSafeAreaView edges={[]} style={styles.background}>
       <MinigameMotion
         key={`${challenge.ruleText}-${completedQuotas}`}
         style={styles.container}
@@ -508,7 +508,7 @@ export const QuizGame: React.FC<Props> = ({ grade, onSuccess, onClose }) => {
           )}
         </View>
       </MinigameMotion>
-    </LinearGradient>
+    </GradientSafeAreaView>
   );
 };
 

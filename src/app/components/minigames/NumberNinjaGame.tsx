@@ -1,5 +1,5 @@
+import { GradientSafeAreaView } from "@/components/gradient-safe-area";
 import { useAudioPlayer } from "expo-audio";
-import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
@@ -181,7 +181,7 @@ export const NumberNinjaGame: React.FC<Props> = ({
   };
 
   return (
-    <LinearGradient colors={["#0a0b18", "#2b2b5c"]} style={styles.background}>
+    <GradientSafeAreaView edges={[]} style={styles.background}>
       <MinigameMotion
         key={`challenge-${questionNumber}`}
         style={styles.container}
@@ -249,7 +249,8 @@ export const NumberNinjaGame: React.FC<Props> = ({
           {roundExpired && (
             <View style={styles.feedback}>
               <Text style={styles.feedbackText}>
-                Time&apos;s Up! You scored {score} point{score === 1 ? "" : "s"}.
+                Time&apos;s Up! You scored {score} point{score === 1 ? "" : "s"}
+                .
               </Text>
               <TouchableOpacity
                 style={styles.primaryButton}
@@ -263,7 +264,7 @@ export const NumberNinjaGame: React.FC<Props> = ({
           <Text style={styles.score}>Score: {score}</Text>
         </View>
       </MinigameMotion>
-    </LinearGradient>
+    </GradientSafeAreaView>
   );
 };
 
