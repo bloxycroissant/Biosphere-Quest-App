@@ -1,5 +1,5 @@
+import { GradientSafeAreaView } from "@/components/gradient-safe-area";
 import { useAudioPlayer } from "expo-audio";
-import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -169,7 +169,7 @@ export const FlashcardGame: React.FC<Props> = ({
   });
 
   return (
-    <LinearGradient colors={["#0a0b18", "#2b2b5c"]} style={styles.background}>
+    <GradientSafeAreaView edges={[]} style={styles.background}>
       <MinigameMotion key={`${card.front}-${index}`} style={styles.container}>
         <View style={styles.topBar}>
           <TouchableOpacity onPress={onClose}>
@@ -257,7 +257,7 @@ export const FlashcardGame: React.FC<Props> = ({
           </Text>
         </View>
       </MinigameMotion>
-    </LinearGradient>
+    </GradientSafeAreaView>
   );
 };
 
