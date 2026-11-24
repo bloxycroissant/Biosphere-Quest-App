@@ -25,7 +25,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { CodebreakerGame } from "./components/minigames/CodebreakerGame";
 import { FlashcardGame } from "./components/minigames/FlashcardGame";
 import { MemoryMatchGame } from "./components/minigames/MemoryMatchGame";
@@ -900,7 +899,7 @@ export default function GamesScreen() {
       return () => {
         isMounted = false;
       };
-    }, [leaderboardXp]),
+    }, []),
   );
 
   const renderActiveGame = () => {
@@ -937,7 +936,7 @@ export default function GamesScreen() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !activeGameRunning) {
     return (
       <ChildFriendlyLoader message="Powering up the Mini-Game Arcade... 🎮" />
     );
@@ -1308,10 +1307,7 @@ export default function GamesScreen() {
           }
         }}
       >
-        <SafeAreaView
-          edges={["top"]}
-          style={{ flex: 1, backgroundColor: "#091426" }}
-        >
+        <GradientSafeAreaView edges={["top"]} style={{ flex: 1 }}>
           {renderActiveGame()}
           {quitConfirmationVisible && (
             <View style={styles.quitBackdrop}>
@@ -1345,7 +1341,7 @@ export default function GamesScreen() {
               </View>
             </View>
           )}
-        </SafeAreaView>
+        </GradientSafeAreaView>
       </Modal>
 
       <Modal
