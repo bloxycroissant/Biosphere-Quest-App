@@ -1,5 +1,6 @@
 import { GradientSafeAreaView as SafeAreaView } from "@/components/gradient-safe-area";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAudioPlayer } from "expo-audio";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -101,7 +102,12 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(true);
 
-  const audioRef = useRef<any>(null);
+  const player = useAudioPlayer(WELCOME_AUDIO);
+  const audioRef = useRef<any>(player);
+
+  useEffect(() => {
+    audioRef.current = player;
+  }, [player]);
 
   const [fadeAnim] = useState(() => new Animated.Value(1));
   const [slideAnim] = useState(() => new Animated.Value(0));
@@ -136,27 +142,18 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
     ]).start(() => callback());
   };
 
-  const playWelcomeAudio = () => {
+  const playWelcomeAudio = useCallback(() => {
     try {
-      if (typeof window !== "undefined") {
-        if (!audioRef.current) {
-          audioRef.current = new (window as any).Audio(WELCOME_AUDIO);
-          audioRef.current.loop = true;
-          audioRef.current.volume = 0.7;
-        }
-        audioRef.current
-          .play()
-          .then(() => {
-            setIsPlayingMusic(true);
-          })
-          .catch((e: any) => {
-            console.log("Autoplay blocked, waiting for user interaction:", e);
-          });
+      if (audioRef.current) {
+        audioRef.current.loop = true;
+        audioRef.current.volume = 0.7;
+        audioRef.current.play();
+        setIsPlayingMusic(true);
       }
     } catch (e) {
       console.log("Welcome audio initialization error:", e);
     }
-  };
+  }, []);
 
   const toggleMusic = () => {
     try {
@@ -168,6 +165,8 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
         audioRef.current.pause();
         setIsPlayingMusic(false);
       } else {
+        audioRef.current.loop = true;
+        audioRef.current.volume = 0.7;
         audioRef.current.play();
         setIsPlayingMusic(true);
       }
@@ -196,11 +195,15 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
     playWelcomeAudio();
 
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
+      try {
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+      } catch (e) {
+        console.log("Audio cleanup error:", e);
       }
     };
-  }, []);
+  }, [playWelcomeAudio]);
 
   useEffect(() => {
     const backSubscription = BackHandler.addEventListener(
@@ -247,7 +250,7 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
 
   const animateButtonPress = (callback: () => void) => {
     // Also trigger audio play on tap if browser blocked autoplay previously
-    playWelcomeAudio();
+    if (isPlayingMusic) playWelcomeAudio();
 
     Animated.sequence([
       Animated.timing(scaleButtonAnim, {
@@ -264,7 +267,7 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
   };
 
   const toggleSubject = (subject: string): void => {
-    playWelcomeAudio();
+    if (isPlayingMusic) playWelcomeAudio();
     setErrorMessage(null);
     animateItemPress(subject, () => {
       setSelectedSubjects((current) =>
@@ -276,7 +279,7 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
   };
 
   const handleSelectGrade = (level: number) => {
-    playWelcomeAudio();
+    if (isPlayingMusic) playWelcomeAudio();
     setErrorMessage(null);
     animateItemPress(level, () => {
       setSelectedGrade(level);
@@ -284,7 +287,7 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
   };
 
   const handleNextStep = (): void => {
-    playWelcomeAudio();
+    if (isPlayingMusic) playWelcomeAudio();
     if (step === 1 && !fullName.trim()) {
       setErrorMessage("⚠️ Please input or enter your full name to continue.");
       return;
@@ -368,7 +371,7 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
         <View style={styles.header}>
           <Pressable
             onPress={() => {
-              playWelcomeAudio();
+              if (isPlayingMusic) playWelcomeAudio();
               if (step > 1) {
                 setStep(step - 1);
               } else {
@@ -398,7 +401,9 @@ export default function WelcomeWizardScreen(): React.JSX.Element {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          onTouchStart={playWelcomeAudio}
+          onTouchStart={() => {
+            if (isPlayingMusic) playWelcomeAudio();
+          }}
         >
           <Animated.View
             style={{
